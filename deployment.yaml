@@ -24,4 +24,4 @@ spec:
         - containerPort: 80
         - containerPort: 22
       - name: generator
-        image: ilkiformation/funjokegen:v1
+        image: ilkiformation/chuckgen:v1
