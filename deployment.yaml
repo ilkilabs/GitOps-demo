@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontweb
-        image: ilkiformation/simplefrontweb:v1
+        image: ilkiformation/apache:v1
         ports:
           - containerPort: 80
         volumeMounts:
