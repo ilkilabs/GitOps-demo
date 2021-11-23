@@ -16,31 +16,32 @@ spec:
     metadata:
       labels:
         app: webapp
-    containers:
-    - name: frontweb
-      image: ilkiformation/simplefrontweb:v1
-      ports:
-        - containerPort: 80
-      volumeMounts:
+    spec:
+      containers:
+      - name: frontweb
+        image: ilkiformation/simplefrontweb:v1
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          - name: vhost
+            mountPath: /etc/apache2/sites-available/
+          - name: html
+            mountPath: /var/www/simpleweb/
+          - name: css
+            mountPath: /var/www/simpleweb/css/
+          - name: templates
+            mountPath: /var/www/simpleweb/templates
+      volumes:
         - name: vhost
-          mountPath: /etc/apache2/sites-available/
+          configMap:
+            name: frontweb-vhost
         - name: html
-          mountPath: /var/www/simpleweb/
+          configMap:
+            name: frontweb-html
         - name: css
-          mountPath: /var/www/simpleweb/css/
+          configMap:
+            name: frontweb-css
         - name: templates
-          mountPath: /var/www/simpleweb/templates
-    volumes:
-      - name: vhost
-        configMap:
-          name: frontweb-vhost
-      - name: html
-        configMap:
-          name: frontweb-html
-      - name: css
-        configMap:
-          name: frontweb-css
-      - name: templates
-        configMap:
-          name: frontweb-templates
+          configMap:
+            name: frontweb-templates
 
