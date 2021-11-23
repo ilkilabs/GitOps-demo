@@ -14,7 +14,6 @@ spec:
       app: webapp
   template:
     metadata:
-      name: frontweb
       labels:
         app: webapp
     containers:
