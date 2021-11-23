@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  footer.php: |-
+    </body>
+
+    </html>
+  header.php: "<!doctype html>\n<html lang=\"en\">\n\n<head>\n\t<meta charset=\"utf-8\">\n\t<meta
+    http-equiv=\"x-ua-compatible\" content=\"ie=edge\">\n\t<meta name=\"viewport\"
+    content=\"width=device-width, initial-scale=1\">\n\n\t<title>Simple Database App</title>\n\n\t<link
+    rel=\"stylesheet\" href=\"css/style.css\">\n</head>\n\n<body>\n\t<h1>Simple Database
+    App</h1>\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: frontweb-templates

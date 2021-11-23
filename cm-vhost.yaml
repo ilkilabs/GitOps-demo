@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontweb-vhost
+data:
+  000-default.conf: |
+    <VirtualHost *:80>
+        ServerAdmin webmaster@ilki.fr
+        DocumentRoot /var/www/simpleweb
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>

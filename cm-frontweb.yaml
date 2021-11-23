@@ -1,0 +1,160 @@
+apiVersion: v1
+data:
+  LICENSE.md: |
+    The MIT License (MIT)
+
+    Copyright (c) 2018 Tania Rascia
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  README.md: |2+
+
+
+
+  common.php: "<?php\n\nsession_start();\n\nif (empty($_SESSION['csrf'])) {\n\tif
+    (function_exists('random_bytes')) {\n\t\t$_SESSION['csrf'] = bin2hex(random_bytes(32));\n\t}
+    else if (function_exists('mcrypt_create_iv')) {\n\t\t$_SESSION['csrf'] = bin2hex(mcrypt_create_iv(32,
+    MCRYPT_DEV_URANDOM));\n\t} else {\n\t\t$_SESSION['csrf'] = bin2hex(openssl_random_pseudo_bytes(32));\n\t}\n}\n\n/**\n
+    * Escapes HTML for output\n *\n */\n\nfunction escape($html) {\n    return htmlspecialchars($html,
+    ENT_QUOTES | ENT_SUBSTITUTE, \"UTF-8\");\n}\n"
+  create.php: "<?php\n\n/**\n * Use an HTML form to create a new entry in the\n *
+    users table.\n *\n */\n\nrequire \"./config/config.php\";\nrequire \"common.php\";\n\nif
+    (isset($_POST['submit'])) {\n  if (!hash_equals($_SESSION['csrf'], $_POST['csrf']))
+    die();\n\n  try  {\n    $connection = new PDO($dsn, $username, $password, $options);\n
+    \   \n    $new_user = array(\n      \"firstname\" => $_POST['firstname'],\n      \"lastname\"
+    \ => $_POST['lastname'],\n      \"email\"     => $_POST['email'],\n      \"age\"
+    \      => $_POST['age'],\n      \"location\"  => $_POST['location']\n    );\n\n
+    \   $sql = sprintf(\n      \"INSERT INTO %s (%s) values (%s)\",\n      \"users\",\n
+    \     implode(\", \", array_keys($new_user)),\n      \":\" . implode(\", :\",
+    array_keys($new_user))\n    );\n    \n    $statement = $connection->prepare($sql);\n
+    \   $statement->execute($new_user);\n  } catch(PDOException $error) {\n      echo
+    $sql . \"<br>\" . $error->getMessage();\n  }\n}\n?>\n<?php require \"templates/header.php\";
+    ?>\n\n  <?php if (isset($_POST['submit']) && $statement) : ?>\n    <blockquote><?php
+    echo escape($_POST['firstname']); ?> successfully added.</blockquote>\n  <?php
+    endif; ?>\n\n  <h2>Add a user</h2>\n\n  <form method=\"post\">\n    <input name=\"csrf\"
+    type=\"hidden\" value=\"<?php echo escape($_SESSION['csrf']); ?>\">\n    <label
+    for=\"firstname\">First Name</label>\n    <input type=\"text\" name=\"firstname\"
+    id=\"firstname\">\n    <label for=\"lastname\">Last Name</label>\n    <input type=\"text\"
+    name=\"lastname\" id=\"lastname\">\n    <label for=\"email\">Email Address</label>\n
+    \   <input type=\"text\" name=\"email\" id=\"email\">\n    <label for=\"age\">Age</label>\n
+    \   <input type=\"text\" name=\"age\" id=\"age\">\n    <label for=\"location\">Location</label>\n
+    \   <input type=\"text\" name=\"location\" id=\"location\">\n    <input type=\"submit\"
+    name=\"submit\" value=\"Submit\">\n  </form>\n\n  <a href=\"index.php\">Back to
+    home</a>\n\n<?php require \"templates/footer.php\"; ?>\n"
+  delete.php: "<?php\n\n/**\n * Delete a user\n */\n\nrequire \"./config/config.php\";\nrequire
+    \"common.php\";\n\nif (isset($_GET[\"id\"])) {\n  try {\n    $connection = new
+    PDO($dsn, $username, $password, $options);\n  \n    $id = $_GET[\"id\"];\n\n    $sql
+    = \"DELETE FROM users WHERE id = :id\";\n\n    $statement = $connection->prepare($sql);\n
+    \   $statement->bindValue(':id', $id);\n    $statement->execute();\n\n  } catch(PDOException
+    $error) {\n    echo $sql . \"<br>\" . $error->getMessage();\n  }\n}\n\ntry {\n
+    \ $connection = new PDO($dsn, $username, $password, $options);\n\n  $sql = \"SELECT
+    * FROM users\";\n\n  $statement = $connection->prepare($sql);\n  $statement->execute();\n\n
+    \ $result = $statement->fetchAll();\n} catch(PDOException $error) {\n  echo $sql
+    . \"<br>\" . $error->getMessage();\n}\n?>\n<?php require \"templates/header.php\";
+    ?>\n        \n<h2>Delete users</h2>\n\n<table>\n  <thead>\n    <tr>\n      <th>#</th>\n
+    \     <th>First Name</th>\n      <th>Last Name</th>\n      <th>Email Address</th>\n
+    \     <th>Age</th>\n      <th>Location</th>\n      <th>Date</th>\n      <th>Delete</th>\n
+    \   </tr>\n  </thead>\n  <tbody>\n  <?php foreach ($result as $row) : ?>\n    <tr>\n
+    \     <td><?php echo escape($row[\"id\"]); ?></td>\n      <td><?php echo escape($row[\"firstname\"]);
+    ?></td>\n      <td><?php echo escape($row[\"lastname\"]); ?></td>\n      <td><?php
+    echo escape($row[\"email\"]); ?></td>\n      <td><?php echo escape($row[\"age\"]);
+    ?></td>\n      <td><?php echo escape($row[\"location\"]); ?></td>\n      <td><?php
+    echo escape($row[\"date\"]); ?> </td>\n      <td><a href=\"delete.php?id=<?php
+    echo escape($row[\"id\"]); ?>\">Delete</a></td>\n    </tr>\n  <?php endforeach;
+    ?>\n  </tbody>\n</table>\n\n<a href=\"index.php\">Back to home</a>\n\n<?php require
+    \"templates/footer.php\"; ?>\n"
+  index.php: "<?php include \"templates/header.php\"; ?>\n\n<ul>\n\t<li><a href=\"create.php\"><strong>Create</strong></a>
+    - add a user</li>\n\t<li><a href=\"read.php\"><strong>Read</strong></a> - find
+    a user</li>\n\t<li><a href=\"update.php\"><strong>Update</strong></a> - edit a
+    user</li>\n\t<li><a href=\"delete.php\"><strong>Delete</strong></a> - delete a
+    user</li>\n</ul>\n\n<?php include \"templates/footer.php\"; ?>"
+  install.php: "<?php\n\n/**\n * Open a connection via PDO to create a\n * new database
+    and table with structure.\n *\n */\n\nrequire \"./config/config.php\";\n\ntry
+    {\n    $connection = new PDO(\"mysql:host=$host\", $username, $password, $options);\n
+    \   $sql = file_get_contents(\"data/init.sql\");\n    $connection->exec($sql);\n
+    \   \n    echo \"Database and table users created successfully.\";\n} catch(PDOException
+    $error) {\n    echo $sql . \"<br>\" . $error->getMessage();\n}\n"
+  read.php: "<?php\n\n/**\n * Function to query information based on \n * a parameter:
+    in this case, location.\n *\n */\n\nrequire \"./config/config.php\";\nrequire
+    \"common.php\";\n\nif (isset($_POST['submit'])) {\n  if (!hash_equals($_SESSION['csrf'],
+    $_POST['csrf'])) die();\n\n  try  {\n    $connection = new PDO($dsn, $username,
+    $password, $options);\n\n    $sql = \"SELECT * \n            FROM users\n            WHERE
+    location = :location\";\n\n    $location = $_POST['location'];\n    $statement
+    = $connection->prepare($sql);\n    $statement->bindParam(':location', $location,
+    PDO::PARAM_STR);\n    $statement->execute();\n\n    $result = $statement->fetchAll();\n
+    \ } catch(PDOException $error) {\n      echo $sql . \"<br>\" . $error->getMessage();\n
+    \ }\n}\n?>\n<?php require \"templates/header.php\"; ?>\n        \n<?php  \nif
+    (isset($_POST['submit'])) {\n  if ($result && $statement->rowCount() > 0) { ?>\n
+    \   <h2>Results</h2>\n\n    <table>\n      <thead>\n        <tr>\n          <th>#</th>\n
+    \         <th>First Name</th>\n          <th>Last Name</th>\n          <th>Email
+    Address</th>\n          <th>Age</th>\n          <th>Location</th>\n          <th>Date</th>\n
+    \       </tr>\n      </thead>\n      <tbody>\n      <?php foreach ($result as
+    $row) : ?>\n        <tr>\n          <td><?php echo escape($row[\"id\"]); ?></td>\n
+    \         <td><?php echo escape($row[\"firstname\"]); ?></td>\n          <td><?php
+    echo escape($row[\"lastname\"]); ?></td>\n          <td><?php echo escape($row[\"email\"]);
+    ?></td>\n          <td><?php echo escape($row[\"age\"]); ?></td>\n          <td><?php
+    echo escape($row[\"location\"]); ?></td>\n          <td><?php echo escape($row[\"date\"]);
+    ?> </td>\n        </tr>\n      <?php endforeach; ?>\n      </tbody>\n    </table>\n
+    \   <?php } else { ?>\n      <blockquote>No results found for <?php echo escape($_POST['location']);
+    ?>.</blockquote>\n    <?php } \n} ?> \n\n<h2>Find user based on location</h2>\n\n<form
+    method=\"post\">\n  <input name=\"csrf\" type=\"hidden\" value=\"<?php echo escape($_SESSION['csrf']);
+    ?>\">\n  <label for=\"location\">Location</label>\n  <input type=\"text\" id=\"location\"
+    name=\"location\">\n  <input type=\"submit\" name=\"submit\" value=\"View Results\">\n</form>\n\n<a
+    href=\"index.php\">Back to home</a>\n\n<?php require \"templates/footer.php\";
+    ?>\n"
+  update-single.php: "<?php\n\n/**\n * Use an HTML form to edit an entry in the\n
+    * users table.\n *\n */\n\nrequire \"./config/config.php\";\nrequire \"common.php\";\n\nif
+    (isset($_POST['submit'])) {\n  if (!hash_equals($_SESSION['csrf'], $_POST['csrf']))
+    die();\n\n  try {\n    $connection = new PDO($dsn, $username, $password, $options);\n\n
+    \   $user =[\n      \"id\"        => $_POST['id'],\n      \"firstname\" => $_POST['firstname'],\n
+    \     \"lastname\"  => $_POST['lastname'],\n      \"email\"     => $_POST['email'],\n
+    \     \"age\"       => $_POST['age'],\n      \"location\"  => $_POST['location'],\n
+    \     \"date\"      => $_POST['date']\n    ];\n\n    $sql = \"UPDATE users \n
+    \           SET id = :id, \n              firstname = :firstname, \n              lastname
+    = :lastname, \n              email = :email, \n              age = :age, \n              location
+    = :location, \n              date = :date \n            WHERE id = :id\";\n  \n
+    \ $statement = $connection->prepare($sql);\n  $statement->execute($user);\n  }
+    catch(PDOException $error) {\n      echo $sql . \"<br>\" . $error->getMessage();\n
+    \ }\n}\n  \nif (isset($_GET['id'])) {\n  try {\n    $connection = new PDO($dsn,
+    $username, $password, $options);\n    $id = $_GET['id'];\n\n    $sql = \"SELECT
+    * FROM users WHERE id = :id\";\n    $statement = $connection->prepare($sql);\n
+    \   $statement->bindValue(':id', $id);\n    $statement->execute();\n    \n    $user
+    = $statement->fetch(PDO::FETCH_ASSOC);\n  } catch(PDOException $error) {\n      echo
+    $sql . \"<br>\" . $error->getMessage();\n  }\n} else {\n    echo \"Something went
+    wrong!\";\n    exit;\n}\n?>\n\n<?php require \"templates/header.php\"; ?>\n\n<?php
+    if (isset($_POST['submit']) && $statement) : ?>\n\t<blockquote><?php echo escape($_POST['firstname']);
+    ?> successfully updated.</blockquote>\n<?php endif; ?>\n\n<h2>Edit a user</h2>\n\n<form
+    method=\"post\">\n    <input name=\"csrf\" type=\"hidden\" value=\"<?php echo
+    escape($_SESSION['csrf']); ?>\">\n    <?php foreach ($user as $key => $value)
+    : ?>\n      <label for=\"<?php echo $key; ?>\"><?php echo ucfirst($key); ?></label>\n\t
+    \   <input type=\"text\" name=\"<?php echo $key; ?>\" id=\"<?php echo $key; ?>\"
+    value=\"<?php echo escape($value); ?>\" <?php echo ($key === 'id' ? 'readonly'
+    : null); ?>>\n    <?php endforeach; ?> \n    <input type=\"submit\" name=\"submit\"
+    value=\"Submit\">\n</form>\n\n<a href=\"index.php\">Back to home</a>\n\n<?php
+    require \"templates/footer.php\"; ?>\n"
+  update.php: "<?php\n\n/**\n * List all users with a link to edit\n */\n\nrequire
+    \"./config/config.php\";\nrequire \"common.php\";\n\ntry {\n  $connection = new
+    PDO($dsn, $username, $password, $options);\n\n  $sql = \"SELECT * FROM users\";\n\n
+    \ $statement = $connection->prepare($sql);\n  $statement->execute();\n\n  $result
+    = $statement->fetchAll();\n} catch(PDOException $error) {\n  echo $sql . \"<br>\"
+    . $error->getMessage();\n}\n?>\n<?php require \"templates/header.php\"; ?>\n        \n<h2>Update
+    users</h2>\n\n<table>\n    <thead>\n        <tr>\n            <th>#</th>\n            <th>First
+    Name</th>\n            <th>Last Name</th>\n            <th>Email Address</th>\n
+    \           <th>Age</th>\n            <th>Location</th>\n            <th>Date</th>\n
+    \           <th>Edit</th>\n        </tr>\n    </thead>\n    <tbody>\n    <?php
+    foreach ($result as $row) : ?>\n        <tr>\n            <td><?php echo escape($row[\"id\"]);
+    ?></td>\n            <td><?php echo escape($row[\"firstname\"]); ?></td>\n            <td><?php
+    echo escape($row[\"lastname\"]); ?></td>\n            <td><?php echo escape($row[\"email\"]);
+    ?></td>\n            <td><?php echo escape($row[\"age\"]); ?></td>\n            <td><?php
+    echo escape($row[\"location\"]); ?></td>\n            <td><?php echo escape($row[\"date\"]);
+    ?> </td>\n            <td><a href=\"update-single.php?id=<?php echo escape($row[\"id\"]);
+    ?>\">Edit</a></td>\n        </tr>\n    <?php endforeach; ?>\n    </tbody>\n</table>\n\n<a
+    href=\"index.php\">Back to home</a>\n\n<?php require \"templates/footer.php\";
+    ?>\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: frontweb-html

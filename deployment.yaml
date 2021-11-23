@@ -5,23 +5,43 @@ metadata:
 spec:
   strategy:
     rollingUpdate:
-      maxSurge: 30%
-      maxUnavailable: 30%
+      maxSurge: 1%
+      maxUnavailable: 1%
     type: RollingUpdate
-  replicas: 10
+  replicas: 3
   selector:
     matchLabels:
       app: webapp
   template:
     metadata:
+      name: frontweb
       labels:
         app: webapp
-    spec:
-      containers:
-      - name: web
-        image: ilkiformation/webapache:v1
-        ports:
+    containers:
+    - name: frontweb
+      image: ilkiformation/simplefrontweb:v1
+      ports:
         - containerPort: 80
-        - containerPort: 22
-      - name: generator
-        image: ilkiformation/chuckgen:v1
+      volumeMounts:
+        - name: vhost
+          mountPath: /etc/apache2/sites-available/
+        - name: html
+          mountPath: /var/www/simpleweb/
+        - name: css
+          mountPath: /var/www/simpleweb/css/
+        - name: templates
+          mountPath: /var/www/simpleweb/templates
+    volumes:
+      - name: vhost
+        configMap:
+          name: frontweb-vhost
+      - name: html
+        configMap:
+          name: frontweb-html
+      - name: css
+        configMap:
+          name: frontweb-css
+      - name: templates
+        configMap:
+          name: frontweb-templates
+
