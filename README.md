@@ -59,3 +59,4 @@ spec:
     image: ilkiformation/chuckgen:v1
    ```
     
+Sync Manuel
