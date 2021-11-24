@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: fortune
+  name: chuck
   labels:
     app: fortune
 spec:
@@ -12,4 +12,4 @@ spec:
       - containerPort: 80
       - containerPort: 22
   - name: generator
-    image: rg.fr-par.scw.cloud/ilkilabs/fortunegen:v1
+    image: rg.fr-par.scw.cloud/ilkilabs/chuckgen:v1
