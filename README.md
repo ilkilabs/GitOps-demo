@@ -63,3 +63,7 @@ Sync Manuel
 
 
 Enable PRUNE RESOURCES
+
+# Simpleweb
+1) Ajout du deploiement
+2) 
