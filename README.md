@@ -23,3 +23,39 @@ Vues ArgoCD
 [root@scw-agora-master ~]# kubectl delete po fortune -n gitops-demo
 pod "fortune" deleted
 ```
+
+Effectuer le Sync manuel
+
+Puis
+APP DETAILS -> ENABLE AUTO-SYNC
+
+Puis
+
+```console
+[root@scw-agora-master ~]# kubectl delete po fortune -n gitops-demo
+pod "fortune" deleted
+```
+Voir le APP DIFF
+
+
+APP DETAILS -> SELF HEAL
+
+Edition git fichier appv1/pod-fortune.yaml
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: chuck
+  labels:
+    app: fortune
+spec:
+  containers:
+  - name: web
+    image: ilkiformation/webapache:v1
+    ports:
+      - containerPort: 80
+      - containerPort: 22
+  - name: generator
+    image: ilkiformation/chuckgen:v1
+   ```
+    
