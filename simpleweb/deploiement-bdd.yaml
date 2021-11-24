@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simpleweb-bdd
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 30%
+      maxUnavailable: 30%
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simpleweb-bdd
+  template:
+    metadata:
+      labels:
+        app: simpleweb-bdd
+    spec:
+      containers:
+      - name: bdd
+        image: ilkiformation/simpleweb_bdd:v1
+        ports:
+          - containerPort: 3306
