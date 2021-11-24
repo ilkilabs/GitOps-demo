@@ -23,6 +23,8 @@ spec:
         ports:
           - containerPort: 80
         volumeMounts:
+          - name: config
+            mountPath: /var/www/simpleweb/config
           - name: vhost
             mountPath: /etc/apache2/sites-available/
           - name: html
@@ -44,4 +46,7 @@ spec:
         - name: templates
           configMap:
             name: frontweb-templates
+        - name: config
+          configMap:
+            name: frontweb-config
 
