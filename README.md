@@ -60,3 +60,6 @@ spec:
    ```
     
 Sync Manuel
+
+
+Enable PRUNE RESOURCES
