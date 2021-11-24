@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
       - name: bdd
-        image: ilkiformation/simpleweb_bdd:v1
+        image: rg.fr-par.scw.cloud/ilkilabs/simpleweb_bdd:v1
         ports:
           - containerPort: 3306

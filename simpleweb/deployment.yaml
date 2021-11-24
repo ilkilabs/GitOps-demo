@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontweb
-        image: ilkiformation/apache:v1
+        image: rg.fr-par.scw.cloud/ilkilabs/apache:v1
         ports:
           - containerPort: 80
         volumeMounts:
