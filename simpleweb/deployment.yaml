@@ -47,6 +47,6 @@ spec:
           configMap:
             name: frontweb-templates
         - name: config
-          configMap:
-            name: frontweb-config
+          secret:
+            secretName: frontweb-config
 
