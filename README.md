@@ -61,6 +61,7 @@ spec:
     
 Sync Manuel
 
+## Rollback 
 
 Enable PRUNE RESOURCES
 
