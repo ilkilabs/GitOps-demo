@@ -8,7 +8,7 @@ spec:
       maxSurge: 1%
       maxUnavailable: 1%
     type: RollingUpdate
-  replicas: 10
+  replicas: 3
   selector:
     matchLabels:
       app: webapp
@@ -47,6 +47,6 @@ spec:
           configMap:
             name: frontweb-templates
         - name: config
-          secret:
-            secretName: frontweb-config
+          configMap:
+            name: frontweb-config
 
